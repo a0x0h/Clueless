@@ -1,0 +1,45 @@
+name: Release
+
+# Push a tag like v1.0.1 to build, pack and publish a Windows release.
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Tag to release (for example v1.0.1)
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    env:
+      TAG: ${{ github.event.inputs.tag || github.ref_name }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/cache@v4
+        with:
+          path: packages
+          key: packages-${{ hashFiles('build.cmd') }}
+
+      - name: Pack
+        shell: pwsh
+        run: ./scripts/package.ps1 -Version $env:TAG.TrimStart('v')
+
+      - name: Publish
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $v = $env:TAG.TrimStart('v')
+          $notes = "See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md).`n`nDownload **Clueless-$v-win-x64.zip**, unzip anywhere and run ``Clueless.exe``. Needs Windows 11 and the Claude desktop app."
+          gh release view $env:TAG 2>$null
+          if ($LASTEXITCODE -eq 0) {
+            gh release upload $env:TAG "dist/Clueless-$v-win-x64.zip" "dist/Clueless-$v-win-x64.zip.sha256" --clobber
+          } else {
+            gh release create $env:TAG "dist/Clueless-$v-win-x64.zip" "dist/Clueless-$v-win-x64.zip.sha256" --title "Clueless $v" --notes $notes
+          }

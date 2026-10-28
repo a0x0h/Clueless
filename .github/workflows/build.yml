@@ -1,0 +1,35 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache downloads (WebView2 SDK, whisper.cpp, models)
+        uses: actions/cache@v4
+        with:
+          path: packages
+          key: packages-${{ hashFiles('build.cmd') }}
+
+      - name: Build
+        shell: cmd
+        run: build.cmd
+
+      - name: Check the UI script parses
+        run: node -e "new Function(require('fs').readFileSync('ui/app.js','utf8'))"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Clueless-${{ github.sha }}
+          path: |
+            Clueless.exe
+            *.dll
+            ui/
+            extension/
+          retention-days: 14

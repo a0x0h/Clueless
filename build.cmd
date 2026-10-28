@@ -46,7 +46,7 @@ copy /y "%WH%\Release\ggml*.dll" whisper\ >nul
 if not exist whisper\models\ggml-base.en-q5_1.bin copy /y "%WM%\ggml-base.en-q5_1.bin" whisper\models\ >nul
 if not exist whisper\models\ggml-small.en-q5_1.bin copy /y "%WM%\ggml-small.en-q5_1.bin" whisper\models\ >nul
 
-"%FW%\csc.exe" /nologo /target:winexe /platform:x64 /optimize+ /out:Clueless.exe /win32manifest:app.manifest ^
+"%FW%\csc.exe" /nologo /target:winexe /platform:x64 /optimize+ /out:Clueless.exe /win32manifest:app.manifest /win32icon:assets\clueless.ico ^
   /r:"%FW%\WPF\UIAutomationClient.dll" /r:"%FW%\WPF\UIAutomationTypes.dll" /r:"%FW%\WPF\WindowsBase.dll" ^
   /r:System.Windows.Forms.dll /r:System.Drawing.dll /r:System.Web.Extensions.dll /r:System.Xml.dll ^
   /r:System.IO.Compression.dll /r:System.IO.Compression.FileSystem.dll ^

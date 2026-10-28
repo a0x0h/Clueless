@@ -724,4 +724,5 @@ if (host) {
   answers.push({ id: nextId++, ts: t0 + 80e3, label: "What should I say?", screen: true, state: "done",
     text: "**Short version:** it replays the hourly arrival curve from the flight schedule, so peaks come from real banks of departures.\n\nYou could say:\n- \"Each flight becomes a passenger arrival curve, so queues build up naturally during banks.\"\n- \"For peaks we stress-test at 120% of the busiest hour.\"" });
   render();
+  if (location.hash === "#transcript") { setTab("transcript"); picked.add("3"); picked.add("4"); syncPicked(); }
 }

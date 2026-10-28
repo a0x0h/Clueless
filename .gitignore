@@ -12,3 +12,4 @@ packages/
 *.tmp
 Thumbs.db
 desktop.ini
+dist/

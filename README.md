@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="assets/icon-256.png" width="112" alt="Clueless logo">
+
 # Clueless
 
 **The seamless, open-source Cluely alternative.**
@@ -8,7 +10,16 @@
 An invisible copilot for interviews, meetings and calls on Windows: it listens, keeps the transcript,
 sees your screen, and gets you Claude's answer before the pause gets awkward.
 
-`Windows 11` · `C# + WebView2` · `offline speech` · `no API keys` · `MIT`
+[![Release](https://img.shields.io/github/v/release/a0x0h/Clueless?color=FF5100&label=release)](https://github.com/a0x0h/Clueless/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/a0x0h/Clueless/total?color=FF5100)](https://github.com/a0x0h/Clueless/releases)
+[![Build](https://img.shields.io/github/actions/workflow/status/a0x0h/Clueless/build.yml?branch=main)](https://github.com/a0x0h/Clueless/actions/workflows/build.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+![Windows 11](https://img.shields.io/badge/Windows-11-0078D4?logo=windows11&logoColor=white)
+[![Stars](https://img.shields.io/github/stars/a0x0h/Clueless?style=social)](https://github.com/a0x0h/Clueless/stargazers)
+
+### [⬇ Download for Windows](https://github.com/a0x0h/Clueless/releases/latest)
+
+<img src="docs/assist.png" width="420" alt="Claude's answer in the overlay"> <img src="docs/transcript.png" width="420" alt="Selecting transcript lines to ask about">
 
 </div>
 
@@ -29,12 +40,19 @@ sees your screen, and gets you Claude's answer before the pause gets awkward.
 ## Quick start
 
 1. Install the **Claude desktop app** and sign in.
-2. Run `build.cmd`. It uses the C# compiler built into Windows and downloads, once:
-   - the WebView2 SDK (Microsoft, nuget.org),
-   - whisper.cpp `b5454` (github.com/ggml-org) and two English Whisper models (huggingface.co/ggerganov, 56 MB + 181 MB).
-3. Start `Clueless.exe`.
-4. Open **Settings → Your profile** and add your name, your CV (paste it, or *Load from file…* for `.txt`, `.md` or `.docx`) and any instructions.
-5. In the Claude app, open the chat you want Clueless to use. Then press **▶ Start session**.
+2. Download **`Clueless-x.y.z-win-x64.zip`** from [Releases](https://github.com/a0x0h/Clueless/releases/latest), unzip it anywhere and run `Clueless.exe`. Nothing to install. (Windows SmartScreen may ask once: *More info → Run anyway*.)
+3. Open **Settings → Your profile** and add your name, your CV (paste it, or *Load from file…* for `.txt`, `.md` or `.docx`) and any instructions.
+4. In the Claude app, open the chat you want Clueless to use. Then press **▶ Start session**.
+
+<details>
+<summary><b>Build from source</b></summary>
+
+Run `build.cmd`. It uses the C# compiler built into Windows (no SDK) and downloads, once:
+- the WebView2 SDK (Microsoft, nuget.org),
+- whisper.cpp `b5454` (github.com/ggml-org) and two English Whisper models (huggingface.co/ggerganov, 56 MB + 181 MB).
+
+`scripts\package.ps1` builds the release zip into `dist\`.
+</details>
 
 ## How it works
 
@@ -137,6 +155,10 @@ Each session is saved as Markdown in `Documents\Clueless Sessions\` (for example
 | `ui/` | The interface (HTML/CSS/JS). Edit and restart; no rebuild needed. Serving `ui/` from a local web server shows it with sample data. |
 | `extension/` | Chrome extension for Meet, Teams and Zoom captions with names. |
 | `build.cmd` | One-step build, no SDK needed. |
+| `scripts/package.ps1` | Packs the release zip. |
+| `assets/` | Logo and app icon. |
+
+Contributions are welcome, see [CONTRIBUTING.md](CONTRIBUTING.md). Changes are listed in [CHANGELOG.md](CHANGELOG.md).
 
 Settings live in `%APPDATA%\Clueless\` (carried over from the app's former name, *Caption → Claude*).
 

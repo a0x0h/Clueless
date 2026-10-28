@@ -1,0 +1,41 @@
+name: Bug report
+description: Something doesn't work as described
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you did, what you expected, and what happened instead.
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Transcript (my voice / mic)
+        - Transcript (others / Live Captions)
+        - Meeting extension (names)
+        - Sending to Claude / reading replies
+        - Warm-up / profile
+        - Overlay window / stealth
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Clueless version
+      placeholder: "1.0.0"
+  - type: input
+    id: windows
+    attributes:
+      label: Windows version
+      placeholder: "Windows 11 24H2"
+  - type: textarea
+    id: log
+    attributes:
+      label: mic.log (for transcript problems)
+      description: "From %APPDATA%\\Clueless\\mic.log. Remove anything private first."
+      render: text
