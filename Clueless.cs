@@ -26,9 +26,9 @@ using Microsoft.Web.WebView2.WinForms;
 [assembly: System.Reflection.AssemblyProduct("Clueless")]
 [assembly: System.Reflection.AssemblyDescription("The seamless, open-source Cluely alternative")]
 [assembly: System.Reflection.AssemblyCopyright("Copyright (c) 2026 Clueless contributors. MIT License.")]
-[assembly: System.Reflection.AssemblyVersion("1.0.0.0")]
-[assembly: System.Reflection.AssemblyFileVersion("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersion("1.0.0")]
+[assembly: System.Reflection.AssemblyVersion("1.0.1.0")]
+[assembly: System.Reflection.AssemblyFileVersion("1.0.1.0")]
+[assembly: System.Reflection.AssemblyInformationalVersion("1.0.1")]
 
 namespace Clueless
 {

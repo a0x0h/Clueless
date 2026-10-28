@@ -10,8 +10,8 @@
 An invisible copilot for interviews, meetings and calls on Windows: it listens, keeps the transcript,
 sees your screen, and gets you Claude's answer before the pause gets awkward.
 
-[![Release](https://img.shields.io/github/v/release/a0x0h/Clueless?color=FF5100&label=release)](https://github.com/a0x0h/Clueless/releases/latest)
-[![Downloads](https://img.shields.io/github/downloads/a0x0h/Clueless/total?color=FF5100)](https://github.com/a0x0h/Clueless/releases)
+[![Release](https://img.shields.io/github/v/release/a0x0h/Clueless?color=0049FF&label=release)](https://github.com/a0x0h/Clueless/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/a0x0h/Clueless/total?color=0049FF)](https://github.com/a0x0h/Clueless/releases)
 [![Build](https://img.shields.io/github/actions/workflow/status/a0x0h/Clueless/build.yml?branch=main)](https://github.com/a0x0h/Clueless/actions/workflows/build.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 ![Windows 11](https://img.shields.io/badge/Windows-11-0078D4?logo=windows11&logoColor=white)
@@ -56,29 +56,68 @@ Run `build.cmd`. It uses the C# compiler built into Windows (no SDK) and downloa
 
 ## How it works
 
-```
- your mic ──► voice detector ──► Whisper (local) ──┐
-                                                   ├──► transcript ──► Claude desktop app ──► answer in the overlay
- speakers ──► Windows Live Captions (hidden) ──────┘        ▲                │
- Meet / Teams / Zoom captions (extension, real names) ──────┘           screenshot
+Everything is heard and transcribed on your PC. Only the conversation, and a screenshot when you allow it, go to the Claude app, and only when you ask.
+
+```mermaid
+flowchart TB
+    subgraph hear["🎧 Heard offline"]
+        direction TB
+        mic["🎙️ Your mic"] --> whisper["Voice detector + Whisper<br/><i>local speech-to-text</i>"]
+        spk["🔊 Your speakers"] --> lc["Windows Live Captions<br/><i>running hidden</i>"]
+        meet["🌐 Meet · Teams · Zoom"] --> ext["Chrome extension<br/><i>real speaker names</i>"]
+    end
+
+    subgraph app["🫥 Clueless overlay"]
+        direction LR
+        transcript["📝 Live transcript<br/>You · Others · names"] --> ask["⚡ Assist · What should I say?<br/>Recap · selected lines · typed question"]
+        panel["💬 Answer panel"]
+    end
+
+    whisper --> transcript
+    lc --> transcript
+    ext --> transcript
+    shot["🖥️ Screenshot<br/><i>overlay excluded</i>"] --> claude
+    ask -- "new lines + last minute<br/>+ your request" --> claude["🤖 Claude desktop app<br/><i>your signed-in chat</i>"]
+    claude -- "final answer only, formatted" --> panel
+    app -.-> file[("💾 Session saved as Markdown")]
+
+    classDef blue fill:#0c3e8d,stroke:#0049ff,color:#ffffff
+    classDef dark fill:#072047,stroke:#3b82f6,color:#ffffff
+    class transcript,ask,panel blue
+    class claude,shot dark
 ```
 
 ### Sessions and the warm-up
 
-When a session starts, Clueless sends Claude one **warm-up** message: your instructions, name and CV. After that, questions carry only the conversation, so they're short and fast.
+When a session starts, Clueless gives Claude one **warm-up** message with your instructions, name and CV. After that, questions carry only the conversation, so they're short and fast.
 
-- By default the warm-up goes into **the chat that's open in the Claude app**, and that chat is reused for the whole session.
-- Clueless remembers which chat already has your profile. If you start the next session in the same chat with the same profile, the warm-up is skipped.
-- Prefer a clean chat every time? Turn on **Settings → New Claude chat for every session**.
+```mermaid
+flowchart LR
+    start(["▶ Start session"]) --> newchat{"Setting:<br/>New chat for<br/>every session?"}
+    newchat -- yes --> fresh["Open a new Claude chat"] --> warm["Send the warm-up:<br/>instructions + name + CV"]
+    newchat -- no --> open["Use the chat that's<br/>open in the Claude app"] --> known{"Does this chat already<br/>have this exact profile?"}
+    known -- no --> warm
+    known -- yes --> skip["Skip the warm-up"]
+    warm --> remember["Remember this chat"] --> ready(["✅ Ready: questions carry<br/>only the conversation"])
+    skip --> ready
+
+    classDef blue fill:#0c3e8d,stroke:#0049ff,color:#ffffff
+    class start,ready blue
+```
+
 - Changed your CV mid-session? Logo menu → **Give Claude my profile again**.
 
 ### What Claude sees with each question
 
-| Action | Conversation sent |
-|---|---|
-| **Assist**, **What should I say?**, **Follow-up questions**, typed questions | Every line Claude hasn't seen yet, plus the **last minute again** (at least 4 lines), *including the line still being spoken*. A question split across caption lines, or not finished yet, arrives whole. |
-| **Recap** | The whole transcript. |
-| Selected lines | The above, plus the selected lines quoted as the focus. |
+```mermaid
+flowchart LR
+    old["Lines Claude<br/>already has"]:::seen --- unseen["New lines since<br/>the last question"]:::send --- recent["The last minute again<br/>(at least 4 lines)"]:::send --- live["The line still<br/>being spoken"]:::send
+
+    classDef seen fill:#1f2937,stroke:#4b5563,color:#9ca3af
+    classDef send fill:#0c3e8d,stroke:#0049ff,color:#ffffff
+```
+
+The blue part is sent with **Assist**, **What should I say?**, **Follow-up questions** and typed questions, so a question split across caption lines, or not finished yet, arrives whole. **Recap** sends the whole transcript. With lines selected, those lines are quoted as the focus too.
 
 **Assist** answers the latest question the other side asked, in your voice; with nothing being asked, it tells you what's useful right now.
 
@@ -118,13 +157,29 @@ Use headphones: without them the mic also hears the speakers. Clueless drops mic
 
 ## How a question reaches Claude
 
-1. A screenshot of the screen you're working on is taken (scaled to 1920 px wide at most).
-2. The Claude window is found, even when it's closed to the tray, and the open chat is used.
-3. If Claude is still answering the previous question, Clueless waits for it to finish.
-4. The screenshot and text are pasted and sent; focus returns to your window and your clipboard is restored.
-5. The reply streams into the panel without Claude's thinking or tool steps. When it's done, it's taken from Claude's own **Copy** button, so the formatting is exactly Claude's.
+```mermaid
+sequenceDiagram
+    autonumber
+    actor You
+    participant C as Clueless
+    participant A as Claude app
 
-**Safety check:** keys are only sent after confirming Claude's prompt box has focus. Otherwise nothing is typed and the text stays on your clipboard.
+    You->>C: Assist (Ctrl+Alt+A), a quick action or a typed question
+    C->>C: Screenshot of your screen (overlay excluded, ≤ 1920 px)
+    C->>A: Find the window (also from the tray) and the open chat
+    opt Claude is still answering
+        C-->>A: Wait until the reply finishes
+    end
+    C->>A: Paste screenshot + conversation + request, press Enter
+    Note over C,A: Only after confirming the prompt box has focus.<br/>Otherwise nothing is typed and the text stays on your clipboard.
+    C-->>You: Focus back to your window, clipboard restored
+    loop While Claude writes
+        A-->>C: Reply text (thinking and tool steps left out)
+        C-->>You: Streams into the panel
+    end
+    A-->>C: Final answer via Claude's own Copy button
+    C-->>You: Shown exactly as Claude formatted it
+```
 
 ## Saved sessions
 

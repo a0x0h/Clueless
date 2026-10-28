@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.1 — 2026-10-29
+
+### Changed
+- New logo and app icon.
+- README: *How it works* is now diagrams (the pipeline, the session warm-up, what Claude sees, and how a question reaches Claude).
+
 ## 1.0.0 — 2026-10-28
 
 First release as **Clueless** (formerly *Caption → Claude*).
