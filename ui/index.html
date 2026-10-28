@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Clueless</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="stage">
+  <!-- floating control pill -->
+  <div id="pill" class="glass">
+    <button class="logo" id="logo" aria-label="Menu">
+      <svg viewBox="0 0 24 24"><path d="M6 10v4M10 7v10M14 9v6M18 11v2"/></svg>
+    </button>
+    <button class="start" id="btnStart"><svg viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5z"/></svg>Start session</button>
+    <div class="live" id="live"><i></i><span id="timer">00:00</span></div>
+    <button class="chip" id="btnToggle"><svg viewBox="0 0 24 24" class="chev"><path d="M6 9l6 6 6-6"/></svg><span id="toggleText">Hide</span></button>
+    <button class="stop" id="btnStop" aria-label="Stop session"><span></span></button>
+  </div>
+
+  <!-- panel -->
+  <div id="panel" class="glass">
+    <div class="head">
+      <div class="tabs">
+        <button class="tab on" data-tab="assist">Assist</button>
+        <button class="tab" data-tab="transcript">Transcript <span class="badge" id="lineCount">0</span></button>
+      </div>
+      <div class="state" id="state"></div>
+    </div>
+
+    <div class="banner hidden" id="micBanner">
+      <svg viewBox="0 0 24 24"><path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3z"/><path d="M19 11a7 7 0 0 1-14 0M12 18v3"/></svg>
+      <span id="micText"></span>
+      <button id="micFix">Open settings</button>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <div class="view" id="assistView">
+      <div id="answers"></div>
+      <div class="empty" id="assistEmpty">
+        <div class="orb"></div>
+        <h2 id="emptyTitle">Start a session to begin</h2>
+        <p id="emptyText">Claude will hear the conversation and see your screen when you ask for help. Everything is saved for you.</p>
+      </div>
+    </div>
+
+    <div class="view hidden" id="transcriptView">
+      <div id="feed"></div>
+      <div class="empty" id="feedEmpty">
+        <h2>No one has spoken yet</h2>
+        <p>Lines show up here as people talk. Click lines to select them and ask about them together.</p>
+      </div>
+    </div>
+
+    <div class="foot">
+      <div class="pickbar" id="pickBar">
+        <span class="count" id="pickCount"></span>
+        <button class="primary" id="pickRespond">How should I respond?</button>
+        <button id="pickExplain">Explain</button>
+        <button class="clear" id="pickClear" aria-label="Clear selection"><svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17"/></svg></button>
+      </div>
+      <div class="actions">
+        <button data-act="assist"><svg viewBox="0 0 24 24"><path d="M12 3l1.6 4.9L18.5 9.5l-4.9 1.6L12 16l-1.6-4.9L5.5 9.5l4.9-1.6zM19 15l.7 2.3L22 18l-2.3.7L19 21l-.7-2.3L16 18l2.3-.7z"/></svg>Assist</button>
+        <span class="dot">·</span>
+        <button data-act="say"><svg viewBox="0 0 24 24"><path d="M4 20l9-9M15 4v3M18.5 5.5l-2 2M20 9h-3M13 4.5l1.2 1.2"/></svg>What should I say?</button>
+        <span class="dot">·</span>
+        <button data-act="followup"><svg viewBox="0 0 24 24"><path d="M5 5h14v10H9l-4 4z"/><path d="M9 10h.01M12 10h.01M15 10h.01"/></svg>Follow-up questions</button>
+        <span class="dot">·</span>
+        <button data-act="recap"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.3-5.7M4 4v4h4"/></svg>Recap</button>
+      </div>
+      <div class="ask">
+        <textarea id="input" rows="1" aria-label="Ask about your screen or conversation"></textarea>
+        <span class="hint" id="hint"><span id="hintText">Ask about your screen or conversation, or</span><span id="hintKeys"><kbd>Ctrl</kbd><kbd>↵</kbd> for Assist</span></span>
+        <button class="screen on" id="btnScreen" data-tip="Include my screen"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg></button>
+        <button class="go" id="go" aria-label="Send"><svg viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6"/></svg></button>
+      </div>
+    </div>
+
+    <!-- settings sheet -->
+    <div class="sheet" id="settings">
+      <div class="sheet-head">
+        <h2>Settings</h2>
+        <button class="icon" id="closeSettings" aria-label="Close settings"><svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17"/></svg></button>
+      </div>
+      <div class="sheet-body">
+        <div class="label">Your profile</div>
+        <p class="note">Given to Claude once when a session starts, so it already knows you before the first question. Reused while it doesn't change.</p>
+        <label class="field"><span>Your name</span><input type="text" id="meName" placeholder="You"></label>
+        <label class="field">
+          <span class="field-head">Your CV / background<button class="link-btn" id="loadProfile" type="button">Load from file…</button></span>
+          <textarea id="profile" rows="6" placeholder="Paste your CV, the job description, notes on the company…"></textarea>
+        </label>
+        <label class="field">
+          <span>Instructions for Claude</span>
+          <textarea id="intro" rows="5"></textarea>
+        </label>
+
+        <div class="label">Claude</div>
+        <div class="card">
+          <div class="opt" data-setting="includeScreen"><div><b>Share my screen with Claude</b><small>Attach a screenshot of the screen you're on with every question.</small></div><i class="sw"></i></div>
+          <div class="opt" data-setting="newChat"><div><b>New Claude chat for every session</b><small>Off: questions go to the chat that's open in the Claude app.</small></div><i class="sw"></i></div>
+          <div class="opt" data-setting="returnFocus"><div><b>Return to my window</b><small>After sending, switch back to the app you were in.</small></div><i class="sw"></i></div>
+          <div class="opt" data-setting="autoSend"><div><b>Auto-send each sentence</b><small>Send every finished sentence to Claude as it's spoken.</small></div><i class="sw"></i></div>
+        </div>
+
+        <div class="label">Captions</div>
+        <div class="card">
+          <div class="opt" data-setting="micAccurate"><div><b>Higher accuracy for my voice</b><small>Uses a larger offline speech model. More accurate with accents and noise, about 3× slower.</small></div><i class="sw"></i></div>
+        <div class="opt" data-setting="hideLiveCaptions"><div><b>Hide the Live Captions bar</b><small>Windows Live Captions runs in the background but stays invisible.</small></div><i class="sw"></i></div>
+        </div>
+
+        <div class="label">Sessions</div>
+        <div class="card">
+          <button class="row-btn" id="openSessions"><span>Open saved sessions</span><small id="sessionsFolder"></small></button>
+        </div>
+
+        <div class="label">Window</div>
+        <div class="card">
+          <div class="opt" data-setting="stealth"><div><b>Hidden from screen share</b><small>Invisible to screen sharing, recordings, screenshots and the taskbar.</small></div><i class="sw"></i></div>
+          <div class="opt" data-setting="onTop"><div><b>Always on top</b></div><i class="sw"></i></div>
+        </div>
+
+        <div class="label">Shortcuts</div>
+        <div class="card keys">
+          <div><span>Assist</span><span><kbd>Ctrl</kbd><kbd>Alt</kbd><kbd>A</kbd></span></div>
+          <div><span>What should I say?</span><span><kbd>Ctrl</kbd><kbd>Alt</kbd><kbd>S</kbd></span></div>
+          <div><span>Show / hide everything</span><span><kbd>Ctrl</kbd><kbd>Alt</kbd><kbd>H</kbd></span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="prompt">
+      <div class="dialog">
+        <h3 id="promptTitle">Rename</h3>
+        <input type="text" id="promptInput">
+        <div class="dialog-actions">
+          <button class="btn ghost" id="promptCancel">Cancel</button>
+          <button class="btn primary" id="promptOk">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="menu glass" id="menu"></div>
+</div>
+<script src="app.js"></script>
+</body>
+</html>

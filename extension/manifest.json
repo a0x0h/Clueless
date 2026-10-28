@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "Clueless: meeting names",
+  "version": "1.0",
+  "description": "Sends Google Meet, Teams and Zoom web captions (with speaker names) to the Clueless desktop app.",
+  "background": { "service_worker": "background.js" },
+  "host_permissions": ["http://localhost:47321/*"],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://meet.google.com/*",
+        "https://teams.microsoft.com/*",
+        "https://teams.live.com/*",
+        "https://teams.cloud.microsoft/*",
+        "https://*.zoom.us/*"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_idle",
+      "all_frames": true
+    }
+  ]
+}

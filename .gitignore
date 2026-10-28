@@ -1,0 +1,14 @@
+# build output (build.cmd recreates all of it)
+*.exe
+*.dll
+*.pdb
+whisper/
+packages/
+
+# local tooling
+.claude/
+.vs/
+.vscode/
+*.tmp
+Thumbs.db
+desktop.ini
